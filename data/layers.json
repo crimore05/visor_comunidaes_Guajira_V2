@@ -1,0 +1,327 @@
+[
+ {
+  "id": "BaseDatosComunidad",
+  "name": "BaseDatosComunidad",
+  "file": "data/BaseDatosComunidad.geojson",
+  "type": "point",
+  "count": 145,
+  "bbox": [
+   -72.8817,
+   11.5232,
+   -72.6257,
+   11.7067
+  ]
+ },
+ {
+  "id": "BaseDatosJagueyes",
+  "name": "BaseDatosJagueyes",
+  "file": "data/BaseDatosJagueyes.geojson",
+  "type": "point",
+  "count": 702,
+  "bbox": [
+   -72.8612,
+   11.5352,
+   -72.6452,
+   11.6946
+  ]
+ },
+ {
+  "id": "BaseDatosPuntosInteres",
+  "name": "BaseDatosPuntosInteres",
+  "file": "data/BaseDatosPuntosInteres.geojson",
+  "type": "point",
+  "count": 1593,
+  "bbox": [
+   -72.883,
+   11.5232,
+   -72.6257,
+   11.7067
+  ]
+ },
+ {
+  "id": "BaseDatosVivAgr",
+  "name": "BaseDatosVivAgr",
+  "file": "data/BaseDatosVivAgr.geojson",
+  "type": "point",
+  "count": 375,
+  "bbox": [
+   -72.8865,
+   11.0698,
+   -72.6254,
+   11.6948
+  ]
+ },
+ {
+  "id": "BaseDatosVivArt",
+  "name": "BaseDatosVivArt",
+  "file": "data/BaseDatosVivArt.geojson",
+  "type": "point",
+  "count": 5108,
+  "bbox": [
+   -72.8878,
+   11.5215,
+   -72.6247,
+   11.7055
+  ]
+ },
+ {
+  "id": "BaseDatosVivChi",
+  "name": "BaseDatosVivChi",
+  "file": "data/BaseDatosVivChi.geojson",
+  "type": "point",
+  "count": 1898,
+  "bbox": [
+   -72.8865,
+   11.5215,
+   -72.6254,
+   11.6945
+  ]
+ },
+ {
+  "id": "BaseDatosVivPes",
+  "name": "BaseDatosVivPes",
+  "file": "data/BaseDatosVivPes.geojson",
+  "type": "point",
+  "count": 1931,
+  "bbox": [
+   -72.8878,
+   11.5308,
+   -72.6257,
+   11.7055
+  ]
+ },
+ {
+  "id": "Batimetria",
+  "name": "Batimetria",
+  "file": "data/Batimetria.geojson",
+  "type": "line",
+  "count": 10,
+  "bbox": [
+   -73.2989,
+   11.3276,
+   -71.0105,
+   12.6434
+  ]
+ },
+ {
+  "id": "CascosUrbanos",
+  "name": "CascosUrbanos",
+  "file": "data/CascosUrbanos.geojson",
+  "type": "polygon",
+  "count": 94,
+  "bbox": [
+   -73.5611,
+   10.4527,
+   -71.2765,
+   12.4308
+  ]
+ },
+ {
+  "id": "DrenajeDoble",
+  "name": "DrenajeDoble",
+  "file": "data/DrenajeDoble.geojson",
+  "type": "polygon",
+  "count": 3,
+  "bbox": [
+   -72.9041,
+   11.3951,
+   -72.6314,
+   11.555
+  ]
+ },
+ {
+  "id": "DrenajeSencillo",
+  "name": "DrenajeSencillo",
+  "file": "data/DrenajeSencillo.geojson",
+  "type": "line",
+  "count": 993,
+  "bbox": [
+   -73.7365,
+   10.7715,
+   -71.1143,
+   12.4353
+  ]
+ },
+ {
+  "id": "Gasoducto",
+  "name": "Gasoducto",
+  "file": "data/Gasoducto.geojson",
+  "type": "line",
+  "count": 2,
+  "bbox": [
+   -72.8941,
+   11.5273,
+   -72.8264,
+   11.581
+  ]
+ },
+ {
+  "id": "Jagueyes",
+  "name": "Jagueyes",
+  "file": "data/Jagueyes.geojson",
+  "type": "polygon",
+  "count": 84,
+  "bbox": [
+   -72.8612,
+   11.5404,
+   -72.6676,
+   11.6943
+  ]
+ },
+ {
+  "id": "La_Guajira",
+  "name": "La Guajira",
+  "file": "data/La_Guajira.geojson",
+  "type": "polygon",
+  "count": 17,
+  "bbox": [
+   -73.6649,
+   10.397,
+   -71.113,
+   12.4588
+  ]
+ },
+ {
+  "id": "LimiteComunidad",
+  "name": "LimiteComunidad",
+  "file": "data/LimiteComunidad.geojson",
+  "type": "polygon",
+  "count": 42,
+  "bbox": [
+   -72.8952,
+   11.5207,
+   -72.7767,
+   11.6351
+  ]
+ },
+ {
+  "id": "LimiteManzanas",
+  "name": "LimiteManzanas",
+  "file": "data/LimiteManzanas.geojson",
+  "type": "line",
+  "count": 2519,
+  "bbox": [
+   -72.944,
+   11.5045,
+   -72.8811,
+   11.5603
+  ]
+ },
+ {
+  "id": "MunAlbania",
+  "name": "MunAlbania",
+  "file": "data/MunAlbania.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -72.6588,
+   11.0809,
+   -72.4089,
+   11.4088
+  ]
+ },
+ {
+  "id": "MunDibulla",
+  "name": "MunDibulla",
+  "file": "data/MunDibulla.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -73.6649,
+   10.841,
+   -73.146,
+   11.3278
+  ]
+ },
+ {
+  "id": "MunMaicao",
+  "name": "MunMaicao",
+  "file": "data/MunMaicao.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -72.6484,
+   11.1154,
+   -71.9784,
+   11.6997
+  ]
+ },
+ {
+  "id": "MunManaure",
+  "name": "MunManaure",
+  "file": "data/MunManaure.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -72.891,
+   11.4236,
+   -72.2624,
+   11.8283
+  ]
+ },
+ {
+  "id": "MunRiohacha",
+  "name": "MunRiohacha",
+  "file": "data/MunRiohacha.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -73.3866,
+   10.91,
+   -71.1138,
+   12.443
+  ]
+ },
+ {
+  "id": "MunUribia",
+  "name": "MunUribia",
+  "file": "data/MunUribia.geojson",
+  "type": "polygon",
+  "count": 1,
+  "bbox": [
+   -72.3801,
+   11.5237,
+   -71.113,
+   12.4588
+  ]
+ },
+ {
+  "id": "PuntosInteres",
+  "name": "PuntosInteres",
+  "file": "data/PuntosInteres.geojson",
+  "type": "point",
+  "count": 1600,
+  "bbox": [
+   -72.8819,
+   11.5307,
+   -72.5822,
+   11.9001
+  ]
+ },
+ {
+  "id": "ViasGuajira",
+  "name": "ViasGuajira",
+  "file": "data/ViasGuajira.geojson",
+  "type": "line",
+  "count": 34,
+  "bbox": [
+   -73.7531,
+   11.1291,
+   -72.2571,
+   11.7714
+  ]
+ },
+ {
+  "id": "ZonaMaritima",
+  "name": "ZonaMaritima",
+  "file": "data/ZonaMaritima.geojson",
+  "type": "polygon",
+  "count": 3,
+  "bbox": [
+   -73.3139,
+   11.2725,
+   -71.892,
+   12.1232
+  ]
+ }
+]

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visor de Shapes · La Guajira</title>
+<link rel="stylesheet" href="lib/leaflet.css">
+<style>
+  :root{--bg:#f6f4ef;--panel:#fffdf8;--ink:#23211c;--muted:#7a7568;--line:#e2ddd0;--accent:#b4531c}
+  @media (prefers-color-scheme:dark){:root{--bg:#1b1a17;--panel:#252320;--ink:#ece8de;--muted:#9a9486;--line:#39362f;--accent:#e8894f}}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  #app{display:flex;height:100%}
+  #side{width:320px;max-width:85vw;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:1000}
+  #side header{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+  #side h1{font-size:16px;margin:0 0 2px;letter-spacing:.2px}
+  #side header p{margin:0;color:var(--muted);font-size:12px}
+  #tools{padding:10px 16px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+  #q{flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;min-width:0}
+  button{font:inherit;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  #layers{overflow:auto;flex:1;padding:6px 8px 20px}
+  details{margin:4px 0}
+  summary{cursor:pointer;padding:8px;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";display:inline-block;width:1em}
+  details[open]>summary::before{content:"▾ "}
+  .row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px}
+  .row:hover{background:var(--bg)}
+  .row input[type=checkbox]{accent-color:var(--accent);margin:0}
+  .sw{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid;display:inline-block}
+  .sw.line{height:4px;border-radius:2px;border:0}
+  .sw.polygon{border-radius:3px}
+  .row label{flex:1;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .n{color:var(--muted);font-size:11px}
+  .zoom{padding:2px 6px;font-size:12px;opacity:.7}
+  .row.loading label::after{content:" …";color:var(--accent)}
+  #map{flex:1;position:relative}
+  #toggle{display:none;position:absolute;top:10px;left:10px;z-index:1100}
+  #msg{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:1200;background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:10px;display:none;max-width:90%}
+  .leaflet-popup-content{font-size:12.5px;margin:10px 12px;max-height:260px;overflow:auto}
+  .leaflet-popup-content h4{margin:0 0 6px;font-size:13px}
+  .leaflet-popup-content table{border-collapse:collapse}
+  .leaflet-popup-content td{padding:2px 8px 2px 0;vertical-align:top}
+  .leaflet-popup-content td:first-child{color:#777;white-space:nowrap}
+  @media (max-width:700px){
+    #side{position:absolute;inset:0 auto 0 0;transform:translateX(-100%);transition:transform .2s}
+    #side.open{transform:none}
+    #toggle{display:block}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <header>
+      <h1>Visor de Shapes · La Guajira</h1>
+      <p>Activa capas, haz clic en un elemento para ver sus atributos.</p>
+    </header>
+    <div id="tools">
+      <input id="q" type="search" placeholder="Buscar capa…">
+      <button id="none" title="Apagar todas las capas">Limpiar</button>
+    </div>
+    <div id="layers"></div>
+  </aside>
+  <main id="map">
+    <button id="toggle">☰ Capas</button>
+    <div id="msg"></div>
+  </main>
+</div>
+
+<script src="lib/leaflet.js"></script>
+<script>
+// ---- Configuración de grupos, colores y etiquetas ----
+const GROUPS = [
+  {title:'Límites administrativos', ids:['La_Guajira','MunRiohacha','MunMaicao','MunManaure','MunUribia','MunAlbania','MunDibulla','CascosUrbanos','ZonaMaritima','LimiteComunidad','LimiteManzanas']},
+  {title:'Hidrografía y agua',      ids:['DrenajeSencillo','DrenajeDoble','Jagueyes','Batimetria']},
+  {title:'Infraestructura',         ids:['ViasGuajira','Gasoducto']},
+  {title:'Comunidades y puntos',    ids:['BaseDatosComunidad','BaseDatosPuntosInteres','PuntosInteres','BaseDatosJagueyes','BaseDatosVivAgr','BaseDatosVivArt','BaseDatosVivChi','BaseDatosVivPes']},
+];
+const COLORS = {
+  La_Guajira:'#8a6d3b',MunRiohacha:'#c0392b',MunMaicao:'#2e86c1',MunManaure:'#8e44ad',MunUribia:'#d68910',MunAlbania:'#17a589',MunDibulla:'#cb4335',
+  CascosUrbanos:'#e74c3c',ZonaMaritima:'#1b6ca8',LimiteComunidad:'#a04000',LimiteManzanas:'#7f8c8d',
+  DrenajeSencillo:'#3498db',DrenajeDoble:'#2471a3',Jagueyes:'#00bcd4',Batimetria:'#1a5276',
+  ViasGuajira:'#6e2c00',Gasoducto:'#f1c40f',
+  BaseDatosComunidad:'#d81b60',BaseDatosPuntosInteres:'#8e24aa',PuntosInteres:'#5e35b1',BaseDatosJagueyes:'#00acc1',
+  BaseDatosVivAgr:'#43a047',BaseDatosVivArt:'#fb8c00',BaseDatosVivChi:'#6d4c41',BaseDatosVivPes:'#039be5'
+};
+const PRETTY = {La_Guajira:'La Guajira',MunRiohacha:'Mun. Riohacha',MunMaicao:'Mun. Maicao',MunManaure:'Mun. Manaure',MunUribia:'Mun. Uribia',MunAlbania:'Mun. Albania',MunDibulla:'Mun. Dibulla',
+  CascosUrbanos:'Cascos urbanos',ZonaMaritima:'Zona marítima',LimiteComunidad:'Límite comunidades',LimiteManzanas:'Límite manzanas',DrenajeSencillo:'Drenaje sencillo',DrenajeDoble:'Drenaje doble',
+  Jagueyes:'Jagüeyes (polígonos)',Batimetria:'Batimetría',ViasGuajira:'Vías',Gasoducto:'Gasoducto',BaseDatosComunidad:'BD Comunidades',BaseDatosPuntosInteres:'BD Puntos de interés',
+  PuntosInteres:'Puntos de interés',BaseDatosJagueyes:'BD Jagüeyes',BaseDatosVivAgr:'Viviendas agrícolas',BaseDatosVivArt:'Viviendas artesanos',BaseDatosVivChi:'Viviendas chivos',BaseDatosVivPes:'Viviendas pesca'};
+const ON_START = ['La_Guajira'];
+
+// ---- Mapa ----
+const map = L.map('map',{zoomControl:true,preferCanvas:true}).setView([11.55,-72.6],8);
+const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/';
+const base = {
+  'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}),
+  'Esri Calles': L.tileLayer(ESRI+'World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri, HERE, Garmin'}),
+  'Esri Satélite': L.tileLayer(ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri, Maxar'}),
+  'Esri Topográfico': L.tileLayer(ESRI+'World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri'}),
+  'Esri Gris claro': L.tileLayer(ESRI+'Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,attribution:'Esri'}),
+  'Carto Claro': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM, © CARTO'}),
+  'OpenTopoMap': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenTopoMap'}),
+  'Sin mapa base': L.layerGroup()
+};
+base['OpenStreetMap'].addTo(map);
+L.control.layers(base,null,{position:'topright'}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+
+const $ = s => document.querySelector(s);
+const msg = t => { const m=$('#msg'); m.textContent=t; m.style.display='block'; clearTimeout(msg.t); msg.t=setTimeout(()=>m.style.display='none',6000); };
+
+function popup(props, title){
+  const rows = Object.entries(props).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('');
+  return `<h4>${esc(title)}</h4>` + (rows?`<table>${rows}</table>`:'<i>Sin atributos</i>');
+}
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const state = {};   // id -> {meta, layer, cb, row}
+function buildLayer(meta, data){
+  const c = COLORS[meta.id] || '#555', title = PRETTY[meta.id] || meta.name;
+  const onEach = (f,l)=>{
+    l.bindPopup(()=>popup(f.properties,title),{maxWidth:320});
+    const nm = f.properties.NOM_MPIO || f.properties.COMUNIDAD || f.properties.NOMBRE_GEO || f.properties.Nombre || f.properties.NAME;
+    if(nm) l.bindTooltip(String(nm),{sticky:true});
+  };
+  if(meta.type==='point'){
+    return L.geoJSON(data,{pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:5,color:'#fff',weight:1,fillColor:c,fillOpacity:.9}),onEachFeature:onEach});
+  }
+  if(meta.type==='line'){
+    return L.geoJSON(data,{style:{color:c,weight:meta.id==='Gasoducto'?4:2,opacity:.9},onEachFeature:onEach});
+  }
+  const fine = ['LimiteManzanas','LimiteComunidad'].includes(meta.id);
+  return L.geoJSON(data,{style:{color:c,weight:fine?1:2,fillColor:c,fillOpacity:meta.id==='La_Guajira'?.06:.15},onEachFeature:onEach});
+}
+async function setOn(id,on,fit){
+  const s=state[id];
+  if(!on){ if(s.layer) map.removeLayer(s.layer); return; }
+  if(!s.layer){
+    s.row.classList.add('loading');
+    try{
+      const r = await fetch(s.meta.file); if(!r.ok) throw new Error(r.status);
+      s.layer = buildLayer(s.meta, await r.json());
+    }catch(e){
+      s.cb.checked=false; s.row.classList.remove('loading');
+      msg(location.protocol==='file:' ? 'Abre el visor desde un servidor (GitHub Pages o "python -m http.server"); el navegador bloquea la carga desde file://.' : 'No se pudo cargar '+s.meta.file);
+      return;
+    }
+    s.row.classList.remove('loading');
+  }
+  if(s.cb.checked){ s.layer.addTo(map); if(fit) zoomTo(id); }
+}
+function zoomTo(id){
+  const s=state[id]; const b=s.layer?s.layer.getBounds():null;
+  if(b&&b.isValid()) map.fitBounds(b,{padding:[30,30]});
+}
+
+// ---- Panel ----
+async function init(){
+  let manifest;
+  try{ manifest = await (await fetch('data/layers.json')).json(); }
+  catch(e){ msg('No se pudo leer data/layers.json. Si abriste el archivo con doble clic, usa un servidor local o GitHub Pages.'); return; }
+  const byId = Object.fromEntries(manifest.map(m=>[m.id,m]));
+  const used = new Set(GROUPS.flatMap(g=>g.ids));
+  const groups = GROUPS.map(g=>({...g}));
+  const rest = manifest.filter(m=>!used.has(m.id)).map(m=>m.id);
+  if(rest.length) groups.push({title:'Otras',ids:rest});
+  const box = $('#layers');
+  for(const g of groups){
+    const d = document.createElement('details'); d.open=true;
+    d.innerHTML = `<summary>${g.title}</summary>`;
+    for(const id of g.ids){
+      const m = byId[id]; if(!m) continue;
+      const row = document.createElement('div'); row.className='row'; row.dataset.name=(PRETTY[id]||m.name).toLowerCase();
+      const c = COLORS[id]||'#555';
+      row.innerHTML = `<input type="checkbox" id="c_${id}"><span class="sw ${m.type}" style="border-color:${c};background:${c}${m.type==='polygon'?'33':''}${m.type==='line'?'':''}"></span>
+        <label for="c_${id}">${esc(PRETTY[id]||m.name)}</label><span class="n">${m.count}</span><button class="zoom" title="Ir a la capa">⌖</button>`;
+      d.appendChild(row);
+      const cb=row.querySelector('input');
+      state[id]={meta:m,row,cb,layer:null};
+      cb.onchange=()=>setOn(id,cb.checked,true);
+      row.querySelector('.zoom').onclick=async()=>{ if(!cb.checked){cb.checked=true;} await setOn(id,true,false); zoomTo(id); };
+    }
+    box.appendChild(d);
+  }
+  for(const id of ON_START){ if(state[id]){ state[id].cb.checked=true; await setOn(id,true,false); } }
+  const first=state[ON_START[0]]; if(first&&first.layer) zoomTo(ON_START[0]);
+}
+$('#q').oninput=e=>{
+  const v=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.row').forEach(r=>r.style.display=r.dataset.name.includes(v)?'':'none');
+};
+$('#none').onclick=()=>Object.keys(state).forEach(id=>{state[id].cb.checked=false;setOn(id,false);});
+$('#toggle').onclick=()=>$('#side').classList.toggle('open');
+map.on('click',()=>$('#side').classList.remove('open'));
+init();
+</script>
+</body>
+</html>
